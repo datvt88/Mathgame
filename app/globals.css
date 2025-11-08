@@ -1,0 +1,352 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.container {
+  background: white;
+  border-radius: 24px;
+  padding: 40px;
+  max-width: 800px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.title {
+  font-size: 2.5em;
+  color: #667eea;
+  text-align: center;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 1.2em;
+}
+
+.button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  font-size: 1.2em;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.question-container {
+  text-align: center;
+  margin: 40px 0;
+}
+
+.question-text {
+  font-size: 2em;
+  color: #333;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 15px;
+  margin: 30px auto;
+  max-width: 500px;
+  justify-items: center;
+}
+
+.image-item {
+  font-size: 3em;
+  transition: transform 0.2s ease;
+}
+
+.image-item:hover {
+  transform: scale(1.1);
+}
+
+.pattern-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 30px 0;
+}
+
+.pattern-item {
+  font-size: 4em;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.pattern-item.empty {
+  border: 3px dashed #667eea;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  min-height: 100px;
+}
+
+.answer-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin: 30px auto;
+  max-width: 600px;
+}
+
+.option-button {
+  background: white;
+  border: 3px solid #667eea;
+  padding: 30px 20px;
+  font-size: 3em;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.option-button:hover {
+  background: #667eea;
+  transform: scale(1.05);
+}
+
+.option-button.selected {
+  background: #667eea;
+  color: white;
+  border-color: #764ba2;
+}
+
+.score-display {
+  text-align: center;
+  font-size: 1.5em;
+  color: #764ba2;
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.5s ease;
+}
+
+.pokemon-card {
+  background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+  border-radius: 20px;
+  padding: 30px;
+  text-align: center;
+  margin: 20px 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: bounce 0.6s ease-out;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.pokemon-image {
+  font-size: 8em;
+  margin: 20px 0;
+  animation: spin 1s ease-in-out;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.pokemon-name {
+  font-size: 2em;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.pokemon-rarity {
+  display: inline-block;
+  padding: 5px 15px;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+  margin: 10px 0;
+  font-size: 0.9em;
+}
+
+.rarity-common { background: #95a5a6; }
+.rarity-uncommon { background: #27ae60; }
+.rarity-rare { background: #3498db; }
+.rarity-epic { background: #9b59b6; }
+.rarity-legendary { background: #f39c12; }
+
+.mystery-bag {
+  font-size: 10em;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  user-select: none;
+  text-align: center;
+  margin: 40px 0;
+}
+
+.mystery-bag:hover {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.mystery-bag:active {
+  transform: scale(0.95);
+}
+
+.result-message {
+  font-size: 2em;
+  text-align: center;
+  margin: 30px 0;
+  color: #333;
+  font-weight: bold;
+}
+
+.pokemon-collection {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 15px;
+  margin: 30px 0;
+}
+
+.pokemon-mini-card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.pokemon-mini-card:hover {
+  transform: translateY(-5px);
+}
+
+.pokemon-mini-image {
+  font-size: 3em;
+  margin-bottom: 10px;
+}
+
+.pokemon-mini-name {
+  font-size: 0.9em;
+  color: #333;
+  font-weight: bold;
+}
+
+.input-answer {
+  font-size: 2em;
+  padding: 15px 30px;
+  border: 3px solid #667eea;
+  border-radius: 15px;
+  text-align: center;
+  width: 200px;
+  margin: 20px auto;
+  display: block;
+  font-weight: bold;
+}
+
+.input-answer:focus {
+  outline: none;
+  border-color: #764ba2;
+  box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+}
+
+.feedback {
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 20px 0;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.feedback.correct {
+  color: #27ae60;
+  background: #d5f4e6;
+}
+
+.feedback.incorrect {
+  color: #e74c3c;
+  background: #fadbd8;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+
+  .title {
+    font-size: 1.8em;
+  }
+
+  .pattern-item {
+    font-size: 2.5em;
+  }
+
+  .option-button {
+    font-size: 2em;
+    padding: 20px 10px;
+  }
+}
