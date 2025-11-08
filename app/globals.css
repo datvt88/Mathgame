@@ -332,6 +332,280 @@ body {
   background: #fadbd8;
 }
 
+/* ==================== Character Select Styles ==================== */
+.character-select-container {
+  padding: 20px;
+}
+
+.character-select-title {
+  font-size: 2.5em;
+  color: #667eea;
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.character-select-subtitle {
+  text-align: center;
+  color: #666;
+  font-size: 1.3em;
+  margin-bottom: 40px;
+}
+
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.character-card {
+  background: white;
+  border: 4px solid #667eea;
+  border-radius: 20px;
+  padding: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.character-card:hover {
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.character-card:active {
+  transform: translateY(-4px) scale(1.02);
+}
+
+.character-emoji {
+  font-size: 5em;
+  margin: 20px 0;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.character-name {
+  font-size: 1.5em;
+  color: #333;
+  margin: 15px 0 10px;
+  font-weight: bold;
+}
+
+.character-description {
+  color: #666;
+  font-size: 1em;
+  margin: 0;
+}
+
+/* ==================== Character Display Styles ==================== */
+.character-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.character-avatar {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 5px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  margin-bottom: 15px;
+}
+
+.character-main-emoji {
+  font-size: 4em;
+  z-index: 1;
+}
+
+.equipment-slot {
+  position: absolute;
+  font-size: 2em;
+  background: white;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+  cursor: help;
+}
+
+.equipment-slot:hover {
+  transform: scale(1.2);
+  z-index: 10;
+}
+
+.equipment-hat {
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.equipment-glasses {
+  top: 50%;
+  right: -10px;
+  transform: translateY(-50%);
+}
+
+.equipment-accessory {
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.equipment-tool {
+  top: 50%;
+  left: -10px;
+  transform: translateY(-50%);
+}
+
+.character-info {
+  text-align: center;
+}
+
+.character-name-display {
+  font-size: 1.5em;
+  color: #333;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.character-score {
+  font-size: 1.2em;
+  color: #667eea;
+  font-weight: bold;
+}
+
+/* ==================== Equipment Reward Styles ==================== */
+.equipment-reward-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.equipment-reward-overlay.visible {
+  opacity: 1;
+}
+
+.equipment-reward-card {
+  background: white;
+  border-radius: 25px;
+  padding: 40px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: popIn 0.5s ease-out;
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.equipment-reward-title {
+  font-size: 2em;
+  color: #667eea;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.equipment-reward-emoji {
+  font-size: 6em;
+  margin: 30px 0;
+  border-radius: 50%;
+  width: 150px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px auto;
+  animation: spin 1s ease-out;
+}
+
+.equipment-reward-name {
+  font-size: 1.8em;
+  color: #333;
+  margin: 20px 0 10px;
+  font-weight: bold;
+}
+
+.equipment-reward-description {
+  font-size: 1.2em;
+  color: #666;
+  margin: 10px 0;
+}
+
+.equipment-reward-slot {
+  display: inline-block;
+  background: #667eea;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 1em;
+  margin: 20px 0;
+  font-weight: bold;
+}
+
+.equipment-reward-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  font-size: 1.3em;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  font-weight: bold;
+}
+
+.equipment-reward-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.equipment-reward-button:active {
+  transform: translateY(0);
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 20px;
@@ -348,5 +622,57 @@ body {
   .option-button {
     font-size: 2em;
     padding: 20px 10px;
+  }
+
+  .character-select-title {
+    font-size: 1.8em;
+  }
+
+  .character-select-subtitle {
+    font-size: 1em;
+  }
+
+  .character-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+  }
+
+  .character-emoji {
+    width: 80px;
+    height: 80px;
+    font-size: 3em;
+  }
+
+  .character-name {
+    font-size: 1.2em;
+  }
+
+  .character-avatar {
+    width: 120px;
+    height: 120px;
+  }
+
+  .character-main-emoji {
+    font-size: 3em;
+  }
+
+  .equipment-slot {
+    width: 35px;
+    height: 35px;
+    font-size: 1.5em;
+  }
+
+  .equipment-reward-card {
+    padding: 25px;
+  }
+
+  .equipment-reward-title {
+    font-size: 1.5em;
+  }
+
+  .equipment-reward-emoji {
+    font-size: 4em;
+    width: 100px;
+    height: 100px;
   }
 }

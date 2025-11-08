@@ -50,9 +50,10 @@ export function getRandomPokemon(): Pokemon {
   const random = Math.random() * 100;
   let cumulative = 0;
 
-  for (const rarity of ['legendary', 'epic', 'rare', 'uncommon', 'common'] as PokemonRarity[]) {
+  // Loop from common to legendary for correct probability distribution
+  for (const rarity of ['common', 'uncommon', 'rare', 'epic', 'legendary'] as PokemonRarity[]) {
     cumulative += RARITY_WEIGHTS[rarity];
-    if (random <= cumulative) {
+    if (random < cumulative) {
       const pokemonOfRarity = POKEMON_LIST.filter(p => p.rarity === rarity);
       return pokemonOfRarity[Math.floor(Math.random() * pokemonOfRarity.length)];
     }

@@ -17,6 +17,12 @@ const EMOJIS = {
   shapes: ['🔴', '🔵', '🟢', '🟡', '🟠', '🟣', '⚫', '⚪', '🟤', '🔶'],
 };
 
+// Generate unique ID using timestamp + random for better uniqueness
+let idCounter = 0;
+function generateId(): number {
+  return Date.now() * 1000 + (idCounter++ % 1000);
+}
+
 function getRandomEmoji(category: keyof typeof EMOJIS): string {
   const emojis = EMOJIS[category];
   return emojis[Math.floor(Math.random() * emojis.length)];
@@ -27,10 +33,9 @@ function generatePatternQuestion(): Question {
     // Simple alternating patterns
     () => {
       const emoji1 = getRandomEmoji('shapes');
-      const emoji2 = getRandomEmoji('shapes');
+      let emoji2 = getRandomEmoji('shapes');
       while (emoji2 === emoji1) {
-        const newEmoji = getRandomEmoji('shapes');
-        if (newEmoji !== emoji1) return newEmoji;
+        emoji2 = getRandomEmoji('shapes');
       }
       const pattern = [emoji1, emoji2, emoji1, emoji2, emoji1];
       const options = [emoji1, emoji2, getRandomEmoji('shapes'), getRandomEmoji('shapes')];
@@ -79,7 +84,7 @@ function generatePatternQuestion(): Question {
   const selectedPattern = patterns[Math.floor(Math.random() * patterns.length)]();
 
   return {
-    id: Math.random(),
+    id: generateId(),
     type: 'pattern',
     question: selectedPattern.question,
     pattern: selectedPattern.pattern,
@@ -107,7 +112,7 @@ function generateImageAddition(): Question {
   ].filter(n => n > 0);
 
   return {
-    id: Math.random(),
+    id: generateId(),
     type: 'image-addition',
     question: `Có bao nhiêu ${emoji}?`,
     images,
@@ -132,7 +137,7 @@ function generateImageSubtraction(): Question {
   ].filter(n => n > 0 && n <= total);
 
   return {
-    id: Math.random(),
+    id: generateId(),
     type: 'image-subtraction',
     question: `Có ${total} ${emoji}. Nếu bớt đi ${subtract} ${emoji}, còn lại bao nhiêu?`,
     images: Array(answer).fill(emoji),
@@ -154,7 +159,7 @@ function generateCounting(): Question {
   ].filter(n => n > 0);
 
   return {
-    id: Math.random(),
+    id: generateId(),
     type: 'counting',
     question: `Đếm có bao nhiêu ${emoji}?`,
     images,
