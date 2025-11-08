@@ -1,4 +1,4 @@
-export type QuestionType = 'pattern' | 'image-addition' | 'image-subtraction' | 'counting';
+export type QuestionType = 'pattern' | 'image-addition' | 'image-subtraction' | 'counting' | 'comparison' | 'missing-number';
 
 export interface Question {
   id: number;
@@ -11,10 +11,12 @@ export interface Question {
 }
 
 const EMOJIS = {
-  animals: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯'],
-  fruits: ['🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍒', '🍑', '🥝'],
-  objects: ['⭐', '❤️', '💎', '🌟', '🎈', '🎁', '🏀', '⚽', '🎨', '🎭'],
-  shapes: ['🔴', '🔵', '🟢', '🟡', '🟠', '🟣', '⚫', '⚪', '🟤', '🔶'],
+  animals: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵'],
+  fruits: ['🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍒', '🍑', '🥝', '🍍', '🥭', '🍈', '🫐', '🥥'],
+  objects: ['⭐', '❤️', '💎', '🌟', '🎈', '🎁', '🏀', '⚽', '🎨', '🎭', '🎪', '🎯', '🎲', '🧸', '🪀'],
+  shapes: ['🔴', '🔵', '🟢', '🟡', '🟠', '🟣', '⚫', '⚪', '🟤', '🔶', '🔷', '🔸', '🔹', '💠', '🔺'],
+  nature: ['🌸', '🌺', '🌻', '🌼', '🌷', '🌹', '🏵️', '💐', '🌲', '🌳', '🌴', '🍀', '🍁', '🍂', '🌾'],
+  food: ['🍕', '🍔', '🍟', '🌭', '🍿', '🧁', '🍰', '🎂', '🍪', '🍩', '🍦', '🍧', '🍨', '🧊', '🥤'],
 };
 
 // Generate unique ID using timestamp + random for better uniqueness
@@ -30,7 +32,7 @@ function getRandomEmoji(category: keyof typeof EMOJIS): string {
 
 function generatePatternQuestion(): Question {
   const patterns = [
-    // Simple alternating patterns
+    // Simple alternating patterns (AB AB AB...)
     () => {
       const emoji1 = getRandomEmoji('shapes');
       let emoji2 = getRandomEmoji('shapes');
@@ -47,7 +49,7 @@ function generatePatternQuestion(): Question {
       };
     },
 
-    // Three-element repeating pattern
+    // Three-element repeating pattern (ABC ABC...)
     () => {
       const emoji1 = getRandomEmoji('animals');
       const emoji2 = getRandomEmoji('fruits');
@@ -75,6 +77,58 @@ function generatePatternQuestion(): Question {
           emoji,
           emoji + emoji,
           emoji + emoji + emoji + emoji + emoji,
+        ],
+        question: 'Nhóm nào tiếp theo?',
+      };
+    },
+
+    // AAB pattern
+    () => {
+      const emoji1 = getRandomEmoji('nature');
+      let emoji2 = getRandomEmoji('nature');
+      while (emoji2 === emoji1) {
+        emoji2 = getRandomEmoji('nature');
+      }
+      const pattern = [emoji1, emoji1, emoji2, emoji1, emoji1];
+      const options = [emoji1, emoji2, getRandomEmoji('nature'), getRandomEmoji('nature')];
+      return {
+        pattern,
+        correctAnswer: emoji2,
+        options: [...new Set(options)].slice(0, 4),
+        question: 'Hình nào tiếp theo?',
+      };
+    },
+
+    // ABB pattern
+    () => {
+      const emoji1 = getRandomEmoji('food');
+      let emoji2 = getRandomEmoji('food');
+      while (emoji2 === emoji1) {
+        emoji2 = getRandomEmoji('food');
+      }
+      const pattern = [emoji1, emoji2, emoji2, emoji1, emoji2];
+      const options = [emoji1, emoji2, getRandomEmoji('food'), getRandomEmoji('food')];
+      return {
+        pattern,
+        correctAnswer: emoji2,
+        options: [...new Set(options)].slice(0, 4),
+        question: 'Món ăn nào tiếp theo?',
+      };
+    },
+
+    // Decreasing count pattern
+    () => {
+      const emoji = getRandomEmoji('objects');
+      const pattern = [emoji + emoji + emoji + emoji, emoji + emoji + emoji, emoji + emoji];
+      const correctAnswer = emoji;
+      return {
+        pattern,
+        correctAnswer,
+        options: [
+          correctAnswer,
+          emoji + emoji,
+          emoji + emoji + emoji,
+          emoji + emoji + emoji + emoji,
         ],
         question: 'Nhóm nào tiếp theo?',
       };
@@ -114,7 +168,7 @@ function generateImageAddition(): Question {
   return {
     id: generateId(),
     type: 'image-addition',
-    question: `Có bao nhiêu ${emoji}?`,
+    question: `${num1} + ${num2} = ?`,
     images,
     correctAnswer: answer,
     options: [...new Set(options)].sort(() => Math.random() - 0.5).slice(0, 4),
@@ -168,13 +222,77 @@ function generateCounting(): Question {
   };
 }
 
+function generateComparison(): Question {
+  const emoji1 = getRandomEmoji('animals');
+  const emoji2 = getRandomEmoji('fruits');
+
+  const count1 = Math.floor(Math.random() * 5) + 3; // 3-7
+  const count2 = Math.floor(Math.random() * 5) + 3; // 3-7
+
+  while (count1 === count2) {
+    // Make sure they're different
+    return generateComparison();
+  }
+
+  const images = [
+    ...Array(count1).fill(emoji1),
+    ...Array(count2).fill(emoji2),
+  ];
+
+  let question = '';
+  let correctAnswer = '';
+
+  if (count1 > count2) {
+    question = `${emoji1} hay ${emoji2} nhiều hơn?`;
+    correctAnswer = emoji1;
+  } else {
+    question = `${emoji1} hay ${emoji2} nhiều hơn?`;
+    correctAnswer = emoji2;
+  }
+
+  const options = [emoji1, emoji2, '🤷 Bằng nhau', getRandomEmoji('shapes')];
+
+  return {
+    id: generateId(),
+    type: 'comparison',
+    question,
+    images,
+    correctAnswer,
+    options: [...new Set(options)].slice(0, 4),
+  };
+}
+
+function generateMissingNumber(): Question {
+  const start = Math.floor(Math.random() * 5) + 1; // 1-5
+  const sequence = [start, start + 1, '?', start + 3, start + 4];
+  const correctAnswer = start + 2;
+
+  const options = [
+    correctAnswer,
+    correctAnswer + 1,
+    correctAnswer - 1,
+    correctAnswer + 2,
+  ].filter(n => n > 0);
+
+  return {
+    id: generateId(),
+    type: 'missing-number',
+    question: 'Số nào còn thiếu?',
+    pattern: sequence.map(n => n.toString()),
+    correctAnswer,
+    options: [...new Set(options)].sort(() => Math.random() - 0.5).slice(0, 4),
+  };
+}
+
 export function generateQuestion(): Question {
   const types: (() => Question)[] = [
-    generatePatternQuestion,  // 40% - Priority
-    generatePatternQuestion,  // 40% more
-    generateImageAddition,     // 20%
-    generateImageSubtraction,  // 20%
-    generateCounting,          // 20%
+    generatePatternQuestion,
+    generatePatternQuestion,
+    generateImageAddition,
+    generateImageSubtraction,
+    generateCounting,
+    generateComparison,
+    generateMissingNumber,
   ];
 
   const generator = types[Math.floor(Math.random() * types.length)];
