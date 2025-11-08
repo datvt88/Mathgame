@@ -9,7 +9,7 @@ import { Equipment, PlayerEquipment, getRandomEquipment } from '@/lib/equipment'
 import QuestionCard from '@/components/QuestionCard';
 import PokemonReward from '@/components/PokemonReward';
 import CharacterDisplay from '@/components/CharacterDisplay';
-import EquipmentReward from '@/components/EquipmentReward';
+import getSoundManager from '@/lib/soundManager';
 
 export default function GamePage() {
   const router = useRouter();
@@ -23,7 +23,7 @@ export default function GamePage() {
   const [gameFinished, setGameFinished] = useState(false);
   const [earnedPokemon, setEarnedPokemon] = useState<Pokemon[]>([]);
   const [equipment, setEquipment] = useState<PlayerEquipment>({});
-  const [newEquipment, setNewEquipment] = useState<Equipment | null>(null);
+  const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
     // Load selected character from sessionStorage
@@ -35,10 +35,18 @@ export default function GamePage() {
         // If no character selected, use default (Pikachu)
         setCharacter(CHARACTERS[0]);
       }
+
+      // Load mute state
+      const savedMute = localStorage.getItem('isMuted');
+      if (savedMute) {
+        const muted = savedMute === 'true';
+        setIsMuted(muted);
+        getSoundManager().setMuted(muted);
+      }
     }
 
-    // Generate 5 questions when component mounts
-    setQuestions(generateQuestions(5));
+    // Generate 10 questions when component mounts
+    setQuestions(generateQuestions(10));
   }, []);
 
   const handleAnswer = (answer: string | number) => {
@@ -49,31 +57,19 @@ export default function GamePage() {
     setIsCorrect(correct);
     setShowFeedback(true);
 
+    // Play sound
+    const soundManager = getSoundManager();
     if (correct) {
+      soundManager.playCorrect();
       setScore(score + 1);
-
-      // Award random equipment for correct answer
-      const reward = getRandomEquipment();
-      const slot = reward.slot;
-
-      // Update equipment (replace if slot already has item)
-      setEquipment(prev => ({
-        ...prev,
-        [slot]: reward,
-      }));
-
-      // Show equipment reward popup
-      setNewEquipment(reward);
+    } else {
+      soundManager.playIncorrect();
     }
 
-    // Auto advance after showing reward (or 1.5s if wrong)
-    const delay = correct ? 2500 : 1500; // Longer delay for equipment reward
+    // Auto advance after 1.5 seconds (no popup between questions)
     setTimeout(() => {
-      if (correct) {
-        setNewEquipment(null);
-      }
       handleNext();
-    }, delay);
+    }, 1500);
   };
 
   const handleNext = () => {
@@ -83,16 +79,46 @@ export default function GamePage() {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      // Game finished - use updated score (already incremented if last answer was correct)
+      // Game finished - calculate final score and award equipment based on score
       const finalScore = score + (isCorrect ? 1 : 0);
       const pokemon = getPokemonsByScore(finalScore, questions.length);
       setEarnedPokemon(pokemon);
+
+      // Award equipment based on correct answers
+      const earnedEquipment: PlayerEquipment = {};
+      const numEquipment = Math.min(finalScore, 4); // Max 4 equipment items (one per slot)
+
+      for (let i = 0; i < numEquipment; i++) {
+        const item = getRandomEquipment();
+        // Ensure we don't overwrite existing slots with the same type
+        if (!earnedEquipment[item.slot]) {
+          earnedEquipment[item.slot] = item;
+        }
+      }
+
+      setEquipment(earnedEquipment);
       setGameFinished(true);
+
+      // Play level complete sound
+      setTimeout(() => {
+        getSoundManager().playLevelComplete();
+      }, 300);
     }
   };
 
   const handleRestart = () => {
+    getSoundManager().playClick();
     router.push('/');
+  };
+
+  const toggleMute = () => {
+    const newMuted = !isMuted;
+    setIsMuted(newMuted);
+    getSoundManager().setMuted(newMuted);
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('isMuted', newMuted.toString());
+    }
   };
 
   if (!character || questions.length === 0) {
@@ -117,6 +143,18 @@ export default function GamePage() {
           Điểm của bạn: {score}/{questions.length}
         </div>
 
+        {score === questions.length && (
+          <div style={{ textAlign: 'center', fontSize: '1.5em', color: '#f39c12', margin: '20px 0', fontWeight: 'bold' }}>
+            🏆 Hoàn Hảo! Bạn thật xuất sắc! 🏆
+          </div>
+        )}
+
+        {score >= questions.length * 0.8 && score < questions.length && (
+          <div style={{ textAlign: 'center', fontSize: '1.3em', color: '#27ae60', margin: '20px 0', fontWeight: 'bold' }}>
+            ⭐ Tuyệt vời! Bạn làm rất tốt! ⭐
+          </div>
+        )}
+
         <PokemonReward pokemon={earnedPokemon} onContinue={handleRestart} />
       </div>
     );
@@ -127,6 +165,15 @@ export default function GamePage() {
 
   return (
     <div className="container">
+      {/* Mute button */}
+      <button
+        className="mute-button"
+        onClick={toggleMute}
+        title={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
+      >
+        {isMuted ? '🔇' : '🔊'}
+      </button>
+
       {/* Character display at top */}
       <CharacterDisplay character={character} equipment={equipment} />
 
@@ -154,14 +201,6 @@ export default function GamePage() {
         <div className={`feedback ${isCorrect ? 'correct' : 'incorrect'}`}>
           {isCorrect ? '✅ Chính xác! Tuyệt vời!' : '❌ Sai rồi. Đáp án đúng là: ' + currentQuestion.correctAnswer}
         </div>
-      )}
-
-      {/* Equipment reward popup */}
-      {newEquipment && (
-        <EquipmentReward
-          equipment={newEquipment}
-          onClose={() => setNewEquipment(null)}
-        />
       )}
 
       <div style={{ textAlign: 'center', marginTop: '30px' }}>
