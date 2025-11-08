@@ -27,6 +27,14 @@ export const EQUIPMENT_LIST: Equipment[] = [
   { id: 10, name: 'Huy Chương Đồng', emoji: '🥉', slot: 'accessory', description: 'Top 3 tuyệt vời!', color: '#CD7F32' },
   { id: 11, name: 'Ngôi Sao', emoji: '⭐', slot: 'accessory', description: 'Sáng chói +10', color: '#FFD700' },
   { id: 12, name: 'Trái Tim', emoji: '❤️', slot: 'accessory', description: 'Yêu thương +10', color: '#FF0000' },
+  { id: 19, name: 'Robot Đỏ', emoji: '🤖', slot: 'accessory', description: 'Công nghệ +15', color: '#FF0000' },
+  { id: 20, name: 'Robot Xanh Lam', emoji: '🤖', slot: 'accessory', description: 'Công nghệ +15', color: '#0000FF' },
+  { id: 21, name: 'Robot Vàng', emoji: '🤖', slot: 'accessory', description: 'Công nghệ +15', color: '#FFD700' },
+  { id: 22, name: 'Robot Xanh Lá', emoji: '🤖', slot: 'accessory', description: 'Công nghệ +15', color: '#00FF00' },
+  { id: 23, name: 'Robot Tím', emoji: '🤖', slot: 'accessory', description: 'Công nghệ +15', color: '#9400D3' },
+  { id: 24, name: 'Robot Hồng', emoji: '🤖', slot: 'accessory', description: 'Công nghệ +15', color: '#FF69B4' },
+  { id: 25, name: 'Robot Cam', emoji: '🤖', slot: 'accessory', description: 'Công nghệ +15', color: '#FF8C00' },
+  { id: 26, name: 'Robot Bạc', emoji: '🤖', slot: 'accessory', description: 'Công nghệ +15', color: '#C0C0C0' },
 
   // Tools
   { id: 13, name: 'Bút Chì Vàng', emoji: '✏️', slot: 'tool', description: 'Viết đẹp +10', color: '#DAA520' },
@@ -35,6 +43,9 @@ export const EQUIPMENT_LIST: Equipment[] = [
   { id: 16, name: 'Cầu Vồng', emoji: '🌈', slot: 'tool', description: 'May mắn +10', color: '#FF69B4' },
   { id: 17, name: 'Ngôi Sao Bay', emoji: '🌟', slot: 'tool', description: 'Kỳ diệu +10', color: '#FFD700' },
   { id: 18, name: 'Tên Lửa', emoji: '🚀', slot: 'tool', description: 'Tốc độ +10', color: '#DC143C' },
+  { id: 27, name: 'Robot Bay Đỏ', emoji: '🤖', slot: 'tool', description: 'Bay cao +15', color: '#FF0000' },
+  { id: 28, name: 'Robot Bay Xanh', emoji: '🤖', slot: 'tool', description: 'Bay cao +15', color: '#1E90FF' },
+  { id: 29, name: 'Robot Bay Vàng', emoji: '🤖', slot: 'tool', description: 'Bay cao +15', color: '#FFD700' },
 ];
 
 export interface PlayerEquipment {
