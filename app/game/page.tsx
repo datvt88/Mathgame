@@ -61,48 +61,65 @@ export default function GamePage() {
     const soundManager = getSoundManager();
     if (correct) {
       soundManager.playCorrect();
-      setScore(score + 1);
+      setScore(prevScore => prevScore + 1);
     } else {
       soundManager.playIncorrect();
     }
 
     // Auto advance after 1.5 seconds (no popup between questions)
     setTimeout(() => {
-      handleNext();
+      setShowFeedback(false);
+      setSelectedAnswer(null);
+
+      // Use functional updates to avoid closure issues
+      setCurrentQuestionIndex(prevIndex => {
+        const nextIndex = prevIndex + 1;
+
+        // Check if this was the last question
+        if (nextIndex >= questions.length) {
+          // Game finished - calculate final score based on current score state
+          setScore(currentScore => {
+            const pokemon = getPokemonsByScore(currentScore, questions.length);
+            setEarnedPokemon(pokemon);
+
+            // Award equipment based on correct answers
+            const earnedEquipment: PlayerEquipment = {};
+            const numEquipment = Math.min(currentScore, 4); // Max 4 equipment items (one per slot)
+
+            for (let i = 0; i < numEquipment; i++) {
+              const item = getRandomEquipment();
+              // Ensure we don't overwrite existing slots with the same type
+              if (!earnedEquipment[item.slot]) {
+                earnedEquipment[item.slot] = item;
+              }
+            }
+
+            setEquipment(earnedEquipment);
+            setGameFinished(true);
+
+            // Play level complete sound
+            setTimeout(() => {
+              getSoundManager().playLevelComplete();
+            }, 300);
+
+            return currentScore;
+          });
+
+          return prevIndex; // Don't increment since game is finished
+        }
+
+        return nextIndex;
+      });
     }, 1500);
   };
 
   const handleNext = () => {
+    // This function is now only used by manual navigation
     setShowFeedback(false);
     setSelectedAnswer(null);
 
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      // Game finished - calculate final score and award equipment based on score
-      const finalScore = score + (isCorrect ? 1 : 0);
-      const pokemon = getPokemonsByScore(finalScore, questions.length);
-      setEarnedPokemon(pokemon);
-
-      // Award equipment based on correct answers
-      const earnedEquipment: PlayerEquipment = {};
-      const numEquipment = Math.min(finalScore, 4); // Max 4 equipment items (one per slot)
-
-      for (let i = 0; i < numEquipment; i++) {
-        const item = getRandomEquipment();
-        // Ensure we don't overwrite existing slots with the same type
-        if (!earnedEquipment[item.slot]) {
-          earnedEquipment[item.slot] = item;
-        }
-      }
-
-      setEquipment(earnedEquipment);
-      setGameFinished(true);
-
-      // Play level complete sound
-      setTimeout(() => {
-        getSoundManager().playLevelComplete();
-      }, 300);
     }
   };
 
