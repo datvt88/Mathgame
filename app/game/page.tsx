@@ -4,11 +4,16 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { generateQuestions, Question } from '@/lib/gameLogic';
 import { getPokemonsByScore, Pokemon } from '@/lib/pokemon';
+import { Character, CHARACTERS } from '@/lib/characters';
+import { Equipment, PlayerEquipment, getRandomEquipment } from '@/lib/equipment';
 import QuestionCard from '@/components/QuestionCard';
 import PokemonReward from '@/components/PokemonReward';
+import CharacterDisplay from '@/components/CharacterDisplay';
+import EquipmentReward from '@/components/EquipmentReward';
 
 export default function GamePage() {
   const router = useRouter();
+  const [character, setCharacter] = useState<Character | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -17,8 +22,21 @@ export default function GamePage() {
   const [isCorrect, setIsCorrect] = useState(false);
   const [gameFinished, setGameFinished] = useState(false);
   const [earnedPokemon, setEarnedPokemon] = useState<Pokemon[]>([]);
+  const [equipment, setEquipment] = useState<PlayerEquipment>({});
+  const [newEquipment, setNewEquipment] = useState<Equipment | null>(null);
 
   useEffect(() => {
+    // Load selected character from sessionStorage
+    if (typeof window !== 'undefined') {
+      const savedCharacter = sessionStorage.getItem('selectedCharacter');
+      if (savedCharacter) {
+        setCharacter(JSON.parse(savedCharacter));
+      } else {
+        // If no character selected, use default (Pikachu)
+        setCharacter(CHARACTERS[0]);
+      }
+    }
+
     // Generate 5 questions when component mounts
     setQuestions(generateQuestions(5));
   }, []);
@@ -33,12 +51,29 @@ export default function GamePage() {
 
     if (correct) {
       setScore(score + 1);
+
+      // Award random equipment for correct answer
+      const reward = getRandomEquipment();
+      const slot = reward.slot;
+
+      // Update equipment (replace if slot already has item)
+      setEquipment(prev => ({
+        ...prev,
+        [slot]: reward,
+      }));
+
+      // Show equipment reward popup
+      setNewEquipment(reward);
     }
 
-    // Auto advance after 1.5 seconds
+    // Auto advance after showing reward (or 1.5s if wrong)
+    const delay = correct ? 2500 : 1500; // Longer delay for equipment reward
     setTimeout(() => {
+      if (correct) {
+        setNewEquipment(null);
+      }
       handleNext();
-    }, 1500);
+    }, delay);
   };
 
   const handleNext = () => {
@@ -48,8 +83,9 @@ export default function GamePage() {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      // Game finished
-      const pokemon = getPokemonsByScore(score + (isCorrect ? 1 : 0), questions.length);
+      // Game finished - use updated score (already incremented if last answer was correct)
+      const finalScore = score + (isCorrect ? 1 : 0);
+      const pokemon = getPokemonsByScore(finalScore, questions.length);
       setEarnedPokemon(pokemon);
       setGameFinished(true);
     }
@@ -59,7 +95,7 @@ export default function GamePage() {
     router.push('/');
   };
 
-  if (questions.length === 0) {
+  if (!character || questions.length === 0) {
     return (
       <div className="container">
         <div style={{ textAlign: 'center', fontSize: '2em' }}>
@@ -73,6 +109,10 @@ export default function GamePage() {
     return (
       <div className="container">
         <h1 className="title">🎊 Kết Quả</h1>
+
+        {/* Show character with all earned equipment */}
+        <CharacterDisplay character={character} equipment={equipment} score={score} />
+
         <div className="score-display">
           Điểm của bạn: {score}/{questions.length}
         </div>
@@ -87,6 +127,9 @@ export default function GamePage() {
 
   return (
     <div className="container">
+      {/* Character display at top */}
+      <CharacterDisplay character={character} equipment={equipment} />
+
       <div style={{ marginBottom: '20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
           <span style={{ fontSize: '1.2em', fontWeight: 'bold', color: '#667eea' }}>
@@ -111,6 +154,14 @@ export default function GamePage() {
         <div className={`feedback ${isCorrect ? 'correct' : 'incorrect'}`}>
           {isCorrect ? '✅ Chính xác! Tuyệt vời!' : '❌ Sai rồi. Đáp án đúng là: ' + currentQuestion.correctAnswer}
         </div>
+      )}
+
+      {/* Equipment reward popup */}
+      {newEquipment && (
+        <EquipmentReward
+          equipment={newEquipment}
+          onClose={() => setNewEquipment(null)}
+        />
       )}
 
       <div style={{ textAlign: 'center', marginTop: '30px' }}>
