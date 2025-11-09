@@ -112,19 +112,19 @@ Ví dụ:
  * Evaluate game results using Gemini AI
  */
 export async function evaluateGameResults(result: GameResult): Promise<string> {
+  // Calculate score percentage for use in both AI and fallback
+  const scorePercent = (result.score / result.totalQuestions) * 100;
+
   try {
     const genAI = getGeminiAI();
     if (!genAI) {
       // Fallback evaluation when AI is not available
-      const scorePercent = (result.score / result.totalQuestions) * 100;
       return `Chúc mừng bạn đã hoàn thành! Bạn làm đúng ${result.score}/${result.totalQuestions} câu (${scorePercent.toFixed(0)}%) trong ${Math.floor(result.totalTime / 1000)} giây. ${
         scorePercent >= 80 ? 'Kết quả tuyệt vời! 🎉 Tiếp tục cố gắng nhé!' : 'Hãy luyện tập thêm để tiến bộ hơn! 💪'
       }`;
     }
 
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-
-    const scorePercent = (result.score / result.totalQuestions) * 100;
     const avgTimePerQuestion = result.totalTime / result.totalQuestions / 1000; // in seconds
 
     const prompt = `Bạn là một giáo viên toán học đang đánh giá kết quả học tập của học sinh lớp 1.
