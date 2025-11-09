@@ -2,9 +2,27 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Question, DifficultyLevel } from './gameLogic';
 
 // Initialize Gemini AI
-// Note: In production, use environment variables for API key
-const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'YOUR_API_KEY_HERE';
-const genAI = new GoogleGenerativeAI(API_KEY);
+// API key is loaded from environment variables:
+// - Local development: .env.local file
+// - Vercel production: Environment Variables in project settings
+const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
+
+// Helper function to check if API is configured
+function isAPIConfigured(): boolean {
+  return API_KEY.length > 0 &&
+         !API_KEY.includes('YOUR_API_KEY') &&
+         !API_KEY.includes('Demo') &&
+         API_KEY.startsWith('AIzaSy');
+}
+
+// Lazy initialization - only create when API key is valid
+function getGeminiAI(): GoogleGenerativeAI | null {
+  if (!isAPIConfigured()) {
+    console.warn('⚠️ Gemini API key not configured properly. AI features disabled.');
+    return null;
+  }
+  return new GoogleGenerativeAI(API_KEY);
+}
 
 export interface GameResult {
   score: number;
@@ -19,6 +37,12 @@ export interface GameResult {
  */
 export async function generateAIQuestion(difficulty: DifficultyLevel): Promise<Question | null> {
   try {
+    const genAI = getGeminiAI();
+    if (!genAI) {
+      console.log('Gemini AI not available - API key not configured');
+      return null;
+    }
+
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
     const prompt = `Bạn là một giáo viên toán học cho học sinh lớp 1 (6-7 tuổi).
@@ -89,6 +113,15 @@ Ví dụ:
  */
 export async function evaluateGameResults(result: GameResult): Promise<string> {
   try {
+    const genAI = getGeminiAI();
+    if (!genAI) {
+      // Fallback evaluation when AI is not available
+      const scorePercent = (result.score / result.totalQuestions) * 100;
+      return `Chúc mừng bạn đã hoàn thành! Bạn làm đúng ${result.score}/${result.totalQuestions} câu (${scorePercent.toFixed(0)}%) trong ${Math.floor(result.totalTime / 1000)} giây. ${
+        scorePercent >= 80 ? 'Kết quả tuyệt vời! 🎉 Tiếp tục cố gắng nhé!' : 'Hãy luyện tập thêm để tiến bộ hơn! 💪'
+      }`;
+    }
+
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
     const scorePercent = (result.score / result.totalQuestions) * 100;
@@ -126,6 +159,11 @@ Viết bằng giọng điệu thân thiện, động viên, phù hợp với h�
  */
 export async function getQuestionHint(question: Question): Promise<string> {
   try {
+    const genAI = getGeminiAI();
+    if (!genAI) {
+      return 'Hãy đọc kỹ đề bài và thử từng đáp án nhé! 💡';
+    }
+
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
     const prompt = `Bạn là giáo viên toán học. Học sinh lớp 1 đang gặp khó khăn với câu hỏi:
