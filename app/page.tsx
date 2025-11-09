@@ -9,14 +9,17 @@ import getSoundManager from '@/lib/soundManager';
 export default function Home() {
   const router = useRouter();
   const [showCharacterSelect, setShowCharacterSelect] = useState(false);
+  const [showDifficultySelect, setShowDifficultySelect] = useState(false);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'hard'>('easy');
 
   const handleCharacterSelect = (character: Character) => {
     // Play select sound
     getSoundManager().playSelect();
 
-    // Save selected character to sessionStorage
+    // Save selected character and difficulty to sessionStorage
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('selectedCharacter', JSON.stringify(character));
+      sessionStorage.setItem('selectedDifficulty', selectedDifficulty);
     }
     // Navigate to game
     router.push('/game');
@@ -24,8 +27,104 @@ export default function Home() {
 
   const handleStartClick = () => {
     getSoundManager().playClick();
+    setShowDifficultySelect(true);
+  };
+
+  const handleDifficultySelect = (difficulty: 'easy' | 'hard') => {
+    getSoundManager().playClick();
+    setSelectedDifficulty(difficulty);
+    setShowDifficultySelect(false);
     setShowCharacterSelect(true);
   };
+
+  if (showDifficultySelect) {
+    return (
+      <div className="container">
+        <h1 className="title">📊 Chọn Độ Khó</h1>
+        <p className="subtitle" style={{ marginBottom: '40px' }}>
+          Hãy chọn mức độ phù hợp với bạn!
+        </p>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: '30px',
+          maxWidth: '800px',
+          margin: '0 auto',
+        }}>
+          {/* Easy Mode */}
+          <div
+            onClick={() => handleDifficultySelect('easy')}
+            style={{
+              background: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)',
+              padding: '30px',
+              borderRadius: '20px',
+              cursor: 'pointer',
+              transition: 'transform 0.3s, box-shadow 0.3s',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-10px)';
+              e.currentTarget.style.boxShadow = '0 15px 40px rgba(0,0,0,0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
+            }}
+          >
+            <div style={{ textAlign: 'center', fontSize: '4em', marginBottom: '15px' }}>😊</div>
+            <h2 style={{ textAlign: 'center', color: '#2c3e50', fontSize: '1.8em', marginBottom: '10px' }}>DỄ</h2>
+            <ul style={{ color: '#34495e', fontSize: '1.1em', lineHeight: '1.8', paddingLeft: '20px' }}>
+              <li>Số từ 1-10</li>
+              <li>Phép tính đơn giản</li>
+              <li>Thời gian thoải mái</li>
+              <li>Phù hợp mới bắt đầu</li>
+            </ul>
+          </div>
+
+          {/* Hard Mode */}
+          <div
+            onClick={() => handleDifficultySelect('hard')}
+            style={{
+              background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+              padding: '30px',
+              borderRadius: '20px',
+              cursor: 'pointer',
+              transition: 'transform 0.3s, box-shadow 0.3s',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-10px)';
+              e.currentTarget.style.boxShadow = '0 15px 40px rgba(0,0,0,0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
+            }}
+          >
+            <div style={{ textAlign: 'center', fontSize: '4em', marginBottom: '15px' }}>🔥</div>
+            <h2 style={{ textAlign: 'center', color: '#2c3e50', fontSize: '1.8em', marginBottom: '10px' }}>KHÓ</h2>
+            <ul style={{ color: '#34495e', fontSize: '1.1em', lineHeight: '1.8', paddingLeft: '20px' }}>
+              <li>Số từ 1-20</li>
+              <li>Bài toán phức tạp hơn</li>
+              <li>Thử thách trí tuệ</li>
+              <li>Cho bạn giỏi toán</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: '40px' }}>
+          <button
+            className="button"
+            onClick={() => setShowDifficultySelect(false)}
+            style={{ background: '#95a5a6' }}
+          >
+            ← Quay Lại
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (showCharacterSelect) {
     return (

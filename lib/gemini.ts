@@ -1,0 +1,146 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { Question, DifficultyLevel } from './gameLogic';
+
+// Initialize Gemini AI
+// Note: In production, use environment variables for API key
+const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'YOUR_API_KEY_HERE';
+const genAI = new GoogleGenerativeAI(API_KEY);
+
+export interface GameResult {
+  score: number;
+  totalQuestions: number;
+  totalTime: number;
+  questionTimes: number[];
+  difficulty: DifficultyLevel;
+}
+
+/**
+ * Generate a math question using Gemini AI
+ */
+export async function generateAIQuestion(difficulty: DifficultyLevel): Promise<Question | null> {
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+    const prompt = `Bạn là một giáo viên toán học cho học sinh lớp 1 (6-7 tuổi).
+Hãy tạo MỘT câu hỏi toán học với độ khó "${difficulty === 'easy' ? 'dễ' : 'khó'}".
+
+Yêu cầu:
+- Độ khó DỄ: số từ 1-10, phép tính đơn giản
+- Độ khó KHÓ: số từ 1-20, có thể kết hợp nhiều phép tính
+
+Các dạng bài có thể tạo:
+1. Phép cộng: "? + ? = ?"
+2. Phép trừ: "? - ? = ?"
+3. Đếm đồ vật
+4. So sánh số lớn/nhỏ
+5. Tìm số thiếu trong dãy
+6. Nhận biết quy luật
+
+Trả về JSON với format sau (QUAN TRỌNG: chỉ trả về JSON, không có text khác):
+{
+  "type": "addition" | "subtraction" | "counting" | "comparison" | "missing-number" | "pattern",
+  "question": "Câu hỏi bằng tiếng Việt",
+  "correctAnswer": số hoặc chuỗi đáp án đúng,
+  "options": [4 đáp án để chọn, bao gồm đáp án đúng],
+  "difficulty": "${difficulty}"
+}
+
+Ví dụ:
+{
+  "type": "addition",
+  "question": "3 + 5 = ?",
+  "correctAnswer": 8,
+  "options": [7, 8, 9, 10],
+  "difficulty": "easy"
+}`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+
+    // Extract JSON from response
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.error('No JSON found in Gemini response');
+      return null;
+    }
+
+    const questionData = JSON.parse(jsonMatch[0]);
+
+    // Create Question object
+    const question: Question = {
+      id: Date.now(),
+      type: questionData.type || 'image-addition',
+      question: questionData.question,
+      correctAnswer: questionData.correctAnswer,
+      options: questionData.options,
+      difficulty: difficulty,
+    };
+
+    return question;
+  } catch (error) {
+    console.error('Error generating AI question:', error);
+    return null;
+  }
+}
+
+/**
+ * Evaluate game results using Gemini AI
+ */
+export async function evaluateGameResults(result: GameResult): Promise<string> {
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+    const scorePercent = (result.score / result.totalQuestions) * 100;
+    const avgTimePerQuestion = result.totalTime / result.totalQuestions / 1000; // in seconds
+
+    const prompt = `Bạn là một giáo viên toán học đang đánh giá kết quả học tập của học sinh lớp 1.
+
+Kết quả của học sinh:
+- Số câu đúng: ${result.score}/${result.totalQuestions} (${scorePercent.toFixed(1)}%)
+- Tổng thời gian: ${Math.floor(result.totalTime / 1000)} giây
+- Thời gian trung bình mỗi câu: ${avgTimePerQuestion.toFixed(1)} giây
+- Độ khó: ${result.difficulty === 'easy' ? 'Dễ' : 'Khó'}
+
+Hãy đưa ra nhận xét:
+1. Đánh giá kết quả (xuất sắc/tốt/khá/cần cố gắng)
+2. Nhận xét về độ chính xác
+3. Nhận xét về tốc độ làm bài
+4. 2-3 lời khuyên cụ thể để cải thiện
+
+Viết bằng giọng điệu thân thiện, động viên, phù hợp với học sinh lớp 1. Độ dài khoảng 100-150 từ.`;
+
+    const aiResult = await model.generateContent(prompt);
+    const response = await aiResult.response;
+    return response.text();
+  } catch (error) {
+    console.error('Error evaluating with AI:', error);
+    return `Chúc mừng bạn đã hoàn thành! Bạn làm đúng ${result.score}/${result.totalQuestions} câu trong ${Math.floor(result.totalTime / 1000)} giây. ${
+      scorePercent >= 80 ? 'Kết quả tuyệt vời! 🎉' : 'Hãy cố gắng thêm nhé! 💪'
+    }`;
+  }
+}
+
+/**
+ * Get AI-powered hints for a question
+ */
+export async function getQuestionHint(question: Question): Promise<string> {
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+    const prompt = `Bạn là giáo viên toán học. Học sinh lớp 1 đang gặp khó khăn với câu hỏi:
+"${question.question}"
+
+Đáp án đúng là: ${question.correctAnswer}
+
+Hãy đưa ra một gợi ý (hint) để giúp học sinh tự tìm ra đáp án, KHÔNG nêu trực tiếp đáp án.
+Gợi ý nên ngắn gọn (1-2 câu), dễ hiểu và phù hợp với học sinh lớp 1.`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+  } catch (error) {
+    console.error('Error getting hint:', error);
+    return 'Hãy đọc kỹ đề bài và thử từng đáp án nhé! 💡';
+  }
+}

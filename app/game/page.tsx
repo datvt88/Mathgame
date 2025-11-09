@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { generateQuestions, Question } from '@/lib/gameLogic';
+import { generateQuestions, Question, DifficultyLevel } from '@/lib/gameLogic';
 import { getPokemonsByScore, Pokemon } from '@/lib/pokemon';
 import { Character, CHARACTERS } from '@/lib/characters';
 import { Equipment, PlayerEquipment, getRandomEquipment } from '@/lib/equipment';
@@ -10,6 +10,7 @@ import QuestionCard from '@/components/QuestionCard';
 import PokemonReward from '@/components/PokemonReward';
 import CharacterDisplay from '@/components/CharacterDisplay';
 import getSoundManager from '@/lib/soundManager';
+import { evaluateGameResults, GameResult } from '@/lib/gemini';
 
 export default function GamePage() {
   const router = useRouter();
@@ -24,9 +25,15 @@ export default function GamePage() {
   const [earnedPokemon, setEarnedPokemon] = useState<Pokemon[]>([]);
   const [equipment, setEquipment] = useState<PlayerEquipment>({});
   const [isMuted, setIsMuted] = useState(false);
+  const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now());
+  const [questionTimes, setQuestionTimes] = useState<number[]>([]);
+  const [totalTime, setTotalTime] = useState<number>(0);
+  const [aiEvaluation, setAiEvaluation] = useState<string>('');
+  const [isEvaluating, setIsEvaluating] = useState(false);
+  const [difficulty, setDifficulty] = useState<DifficultyLevel>('easy');
 
   useEffect(() => {
-    // Load selected character from sessionStorage
+    // Load selected character and difficulty from sessionStorage
     if (typeof window !== 'undefined') {
       const savedCharacter = sessionStorage.getItem('selectedCharacter');
       if (savedCharacter) {
@@ -34,6 +41,12 @@ export default function GamePage() {
       } else {
         // If no character selected, use default (Pikachu)
         setCharacter(CHARACTERS[0]);
+      }
+
+      // Load difficulty
+      const savedDifficulty = sessionStorage.getItem('selectedDifficulty') as DifficultyLevel | null;
+      if (savedDifficulty === 'easy' || savedDifficulty === 'hard') {
+        setDifficulty(savedDifficulty);
       }
 
       // Load mute state
@@ -45,17 +58,48 @@ export default function GamePage() {
       }
     }
 
-    // Generate 10 questions when component mounts
-    setQuestions(generateQuestions(10));
-  }, []);
+    // Generate 10 questions when component mounts (will use the loaded difficulty)
+    setQuestions(generateQuestions(10, difficulty));
+  }, [difficulty]);
+
+  // Get AI evaluation when game finishes
+  useEffect(() => {
+    if (gameFinished && totalTime > 0 && !isEvaluating && !aiEvaluation) {
+      setIsEvaluating(true);
+
+      const gameResult: GameResult = {
+        score,
+        totalQuestions: questions.length,
+        totalTime,
+        questionTimes,
+        difficulty,
+      };
+
+      evaluateGameResults(gameResult)
+        .then(evaluation => {
+          setAiEvaluation(evaluation);
+          setIsEvaluating(false);
+        })
+        .catch(error => {
+          console.error('Error getting AI evaluation:', error);
+          setIsEvaluating(false);
+        });
+    }
+  }, [gameFinished, totalTime, score, questions.length, questionTimes, difficulty, isEvaluating, aiEvaluation]);
 
   const handleAnswer = (answer: string | number) => {
     if (showFeedback) return; // Prevent multiple submissions
+
+    // Calculate time taken for this question
+    const timeSpent = Date.now() - questionStartTime;
 
     setSelectedAnswer(answer);
     const correct = answer === questions[currentQuestionIndex].correctAnswer;
     setIsCorrect(correct);
     setShowFeedback(true);
+
+    // Save question time
+    setQuestionTimes(prev => [...prev, timeSpent]);
 
     // Play sound
     const soundManager = getSoundManager();
@@ -79,6 +123,13 @@ export default function GamePage() {
         if (nextIndex >= questions.length) {
           // Game finished - calculate final score based on current score state
           setScore(currentScore => {
+            // Calculate total time
+            setQuestionTimes(allTimes => {
+              const total = allTimes.reduce((sum, t) => sum + t, 0) + timeSpent;
+              setTotalTime(total);
+              return allTimes;
+            });
+
             const pokemon = getPokemonsByScore(currentScore, questions.length);
             setEarnedPokemon(pokemon);
 
@@ -108,6 +159,8 @@ export default function GamePage() {
           return prevIndex; // Don't increment since game is finished
         }
 
+        // Reset timer for next question
+        setQuestionStartTime(Date.now());
         return nextIndex;
       });
     }, 1500);
@@ -160,6 +213,14 @@ export default function GamePage() {
           Điểm của bạn: {score}/{questions.length}
         </div>
 
+        <div style={{ textAlign: 'center', fontSize: '1.2em', color: '#667eea', margin: '15px 0' }}>
+          ⏱️ Thời gian: {Math.floor(totalTime / 1000)}s
+        </div>
+
+        <div style={{ textAlign: 'center', fontSize: '1em', color: '#888', margin: '10px 0' }}>
+          Trung bình: {Math.floor(totalTime / questions.length / 1000)}s/câu
+        </div>
+
         {score === questions.length && (
           <div style={{ textAlign: 'center', fontSize: '1.5em', color: '#f39c12', margin: '20px 0', fontWeight: 'bold' }}>
             🏆 Hoàn Hảo! Bạn thật xuất sắc! 🏆
@@ -171,6 +232,40 @@ export default function GamePage() {
             ⭐ Tuyệt vời! Bạn làm rất tốt! ⭐
           </div>
         )}
+
+        {/* AI Evaluation */}
+        <div style={{
+          margin: '30px auto',
+          padding: '20px',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          borderRadius: '15px',
+          maxWidth: '600px',
+          color: 'white',
+        }}>
+          <h3 style={{ textAlign: 'center', marginBottom: '15px', fontSize: '1.3em' }}>
+            🤖 Nhận Xét Từ AI Giáo Viên
+          </h3>
+          {isEvaluating ? (
+            <div style={{ textAlign: 'center', padding: '20px' }}>
+              <div style={{ fontSize: '1.2em' }}>Đang phân tích kết quả... ⏳</div>
+            </div>
+          ) : aiEvaluation ? (
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.2)',
+              padding: '15px',
+              borderRadius: '10px',
+              fontSize: '1.1em',
+              lineHeight: '1.6',
+              whiteSpace: 'pre-wrap',
+            }}>
+              {aiEvaluation}
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', fontSize: '0.9em', opacity: 0.8 }}>
+              Nhận xét AI đang được tải...
+            </div>
+          )}
+        </div>
 
         <PokemonReward pokemon={earnedPokemon} onContinue={handleRestart} />
       </div>
