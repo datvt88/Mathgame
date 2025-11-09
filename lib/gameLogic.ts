@@ -1,4 +1,5 @@
-export type QuestionType = 'pattern' | 'image-addition' | 'image-subtraction' | 'counting' | 'comparison' | 'missing-number';
+export type QuestionType = 'pattern' | 'image-addition' | 'image-subtraction' | 'counting' | 'comparison' | 'missing-number' | 'shape-counting' | 'shape-sequence';
+export type DifficultyLevel = 'easy' | 'hard';
 
 export interface Question {
   id: number;
@@ -8,6 +9,8 @@ export interface Question {
   correctAnswer: string | number;
   images?: string[];
   pattern?: string[];
+  difficulty?: DifficultyLevel;
+  shapes?: { type: string; emoji: string; count: number }[];
 }
 
 const EMOJIS = {
@@ -20,6 +23,15 @@ const EMOJIS = {
   vehicles: ['🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🛻', '🚚', '🚛', '🚜', '🛵', '🏍️', '🚲', '🛴', '✈️', '🚁'],
   sports: ['⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '⛳', '🥊', '🥋', '⛸️'],
 };
+
+const GEOMETRIC_SHAPES = [
+  { type: 'square', emoji: '🟦', name: 'hình vuông' },
+  { type: 'circle', emoji: '🔵', name: 'hình tròn' },
+  { type: 'triangle', emoji: '🔺', name: 'hình tam giác' },
+  { type: 'rectangle', emoji: '🟩', name: 'hình chữ nhật' },
+  { type: 'star', emoji: '⭐', name: 'ngôi sao' },
+  { type: 'heart', emoji: '❤️', name: 'trái tim' },
+];
 
 // Generate unique ID using timestamp + random for better uniqueness
 let idCounter = 0;
@@ -522,7 +534,166 @@ function generateMissingNumber(): Question {
   };
 }
 
-export function generateQuestion(): Question {
+function generateShapeCounting(difficulty: DifficultyLevel = 'easy'): Question {
+  // Select 1-3 different shapes based on difficulty
+  const numShapeTypes = difficulty === 'easy' ? Math.floor(Math.random() * 2) + 1 : Math.floor(Math.random() * 2) + 2; // easy: 1-2, hard: 2-3
+  const selectedShapes = [...GEOMETRIC_SHAPES]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, numShapeTypes);
+
+  const shapes: { type: string; emoji: string; count: number }[] = [];
+  let totalCount = 0;
+  let targetShape = selectedShapes[Math.floor(Math.random() * selectedShapes.length)];
+  let targetCount = 0;
+
+  // Generate counts for each shape
+  selectedShapes.forEach(shape => {
+    const count = difficulty === 'easy'
+      ? Math.floor(Math.random() * 5) + 2  // easy: 2-6
+      : Math.floor(Math.random() * 6) + 4; // hard: 4-9
+
+    shapes.push({
+      type: shape.type,
+      emoji: shape.emoji,
+      count: count,
+    });
+
+    if (shape.type === targetShape.type) {
+      targetCount = count;
+    }
+    totalCount += count;
+  });
+
+  // Shuffle shapes for display
+  const displayShapes = shapes
+    .flatMap(s => Array(s.count).fill(s.emoji))
+    .sort(() => Math.random() - 0.5);
+
+  const questionTypes = [
+    `Đếm có bao nhiêu ${targetShape.name}?`,
+    `Có bao nhiêu ${targetShape.name}?`,
+    `Tìm số lượng ${targetShape.name}?`,
+  ];
+
+  const question = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+
+  const options = [
+    targetCount,
+    targetCount + 1,
+    targetCount - 1,
+    targetCount + 2,
+    Math.floor(Math.random() * 10) + 1,
+  ].filter(n => n > 0 && n <= 15);
+
+  return {
+    id: generateId(),
+    type: 'shape-counting',
+    question,
+    images: displayShapes,
+    correctAnswer: targetCount,
+    options: [...new Set(options)].sort(() => Math.random() - 0.5).slice(0, 4),
+    difficulty,
+    shapes,
+  };
+}
+
+function generateShapeSequence(difficulty: DifficultyLevel = 'easy'): Question {
+  const patterns = [
+    // Simple AB pattern with shapes
+    () => {
+      const shape1 = GEOMETRIC_SHAPES[Math.floor(Math.random() * GEOMETRIC_SHAPES.length)];
+      let shape2 = GEOMETRIC_SHAPES[Math.floor(Math.random() * GEOMETRIC_SHAPES.length)];
+      while (shape2.type === shape1.type) {
+        shape2 = GEOMETRIC_SHAPES[Math.floor(Math.random() * GEOMETRIC_SHAPES.length)];
+      }
+
+      const pattern = [shape1.emoji, shape2.emoji, shape1.emoji, shape2.emoji, shape1.emoji];
+      const correctAnswer = shape2.emoji;
+
+      let options = [shape1.emoji, shape2.emoji];
+      // Add 2 more random shapes
+      const remainingShapes = GEOMETRIC_SHAPES.filter(s => s.type !== shape1.type && s.type !== shape2.type);
+      options.push(...remainingShapes.slice(0, 2).map(s => s.emoji));
+
+      return {
+        pattern,
+        correctAnswer,
+        options: options.slice(0, 4),
+        question: 'Hình nào tiếp theo?',
+      };
+    },
+
+    // ABC pattern with shapes (harder)
+    () => {
+      const shape1 = GEOMETRIC_SHAPES[Math.floor(Math.random() * GEOMETRIC_SHAPES.length)];
+      let shape2 = GEOMETRIC_SHAPES[Math.floor(Math.random() * GEOMETRIC_SHAPES.length)];
+      let shape3 = GEOMETRIC_SHAPES[Math.floor(Math.random() * GEOMETRIC_SHAPES.length)];
+
+      while (shape2.type === shape1.type) {
+        shape2 = GEOMETRIC_SHAPES[Math.floor(Math.random() * GEOMETRIC_SHAPES.length)];
+      }
+      while (shape3.type === shape1.type || shape3.type === shape2.type) {
+        shape3 = GEOMETRIC_SHAPES[Math.floor(Math.random() * GEOMETRIC_SHAPES.length)];
+      }
+
+      const pattern = [shape1.emoji, shape2.emoji, shape3.emoji, shape1.emoji, shape2.emoji];
+      const correctAnswer = shape3.emoji;
+
+      const options = [shape1.emoji, shape2.emoji, shape3.emoji];
+      const remaining = GEOMETRIC_SHAPES.find(s => s.type !== shape1.type && s.type !== shape2.type && s.type !== shape3.type);
+      if (remaining) options.push(remaining.emoji);
+
+      return {
+        pattern,
+        correctAnswer,
+        options: options.slice(0, 4),
+        question: 'Hình nào tiếp theo?',
+      };
+    },
+
+    // AAB pattern with shapes
+    () => {
+      const shape1 = GEOMETRIC_SHAPES[Math.floor(Math.random() * GEOMETRIC_SHAPES.length)];
+      let shape2 = GEOMETRIC_SHAPES[Math.floor(Math.random() * GEOMETRIC_SHAPES.length)];
+      while (shape2.type === shape1.type) {
+        shape2 = GEOMETRIC_SHAPES[Math.floor(Math.random() * GEOMETRIC_SHAPES.length)];
+      }
+
+      const pattern = [shape1.emoji, shape1.emoji, shape2.emoji, shape1.emoji, shape1.emoji];
+      const correctAnswer = shape2.emoji;
+
+      let options = [shape1.emoji, shape2.emoji];
+      const remainingShapes = GEOMETRIC_SHAPES.filter(s => s.type !== shape1.type && s.type !== shape2.type);
+      options.push(...remainingShapes.slice(0, 2).map(s => s.emoji));
+
+      return {
+        pattern,
+        correctAnswer,
+        options: options.slice(0, 4),
+        question: 'Hình nào tiếp theo?',
+      };
+    },
+  ];
+
+  const selectedPattern = difficulty === 'easy'
+    ? patterns[0]() // AB pattern for easy
+    : patterns[Math.floor(Math.random() * patterns.length)](); // All patterns for hard
+
+  return {
+    id: generateId(),
+    type: 'shape-sequence',
+    question: selectedPattern.question,
+    pattern: selectedPattern.pattern,
+    correctAnswer: selectedPattern.correctAnswer,
+    options: selectedPattern.options,
+    difficulty,
+  };
+}
+
+export function generateQuestion(difficulty?: DifficultyLevel): Question {
+  // If no difficulty specified, randomly choose
+  const diff = difficulty || (Math.random() > 0.5 ? 'easy' : 'hard');
+
   // Balanced distribution across question types for better variety
   const types: (() => Question)[] = [
     generatePatternQuestion,
@@ -541,16 +712,27 @@ export function generateQuestion(): Question {
     generateComparison,
     generateMissingNumber,
     generateMissingNumber,
+    () => generateShapeCounting(diff),
+    () => generateShapeCounting(diff),
+    () => generateShapeSequence(diff),
+    () => generateShapeSequence(diff),
   ];
 
   const generator = types[Math.floor(Math.random() * types.length)];
-  return generator();
+  const question = generator();
+
+  // Add difficulty to all questions if not already set
+  if (!question.difficulty) {
+    question.difficulty = diff;
+  }
+
+  return question;
 }
 
-export function generateQuestions(count: number): Question[] {
+export function generateQuestions(count: number, difficulty?: DifficultyLevel): Question[] {
   const questions: Question[] = [];
   for (let i = 0; i < count; i++) {
-    questions.push(generateQuestion());
+    questions.push(generateQuestion(difficulty));
   }
   return questions;
 }

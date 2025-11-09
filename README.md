@@ -1,133 +1,228 @@
-# 🎮 Pokemon Math Game - Grade 1
+# 🎮 Game Toán Pokemon - Lớp 1
 
-Game toán học tương tác cho học sinh Lớp 1 với hệ thống phần thưởng Pokemon từ túi bí ẩn!
+Game học toán tương tác cho học sinh Lớp 1 với Pokemon, AI thông minh và hệ thống phần thưởng hấp dẫn!
 
-## ✨ Tính Năng
+![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
+![AI](https://img.shields.io/badge/AI-Gemini-purple)
 
-### 🎯 Các Dạng Bài Toán
-1. **Đoán Hình Tiếp Theo** (Pattern Recognition) - Ưu tiên cao
-   - Nhận biết và dự đoán chuỗi hình ảnh
-   - Các mẫu luân phiên và lặp lại
-   - Phát triển tư duy logic
+## ✨ Tính Năng Mới v2.0
 
-2. **Đếm và Tính Toán với Hình Ảnh**
-   - Đếm số lượng emoji
-   - Phép cộng với hình ảnh trực quan
-   - Phép trừ với hình minh họa
+### 🎯 Gameplay Nâng Cấp
+- ✅ **200+ câu hỏi** toán học đa dạng (tăng từ 5 lên 10 câu/lần chơi)
+- ✅ **2 cấp độ**: Dễ 😊 (1-10) và Khó 🔥 (1-20)
+- ✅ **10 dạng bài**: Cộng, trừ, đếm, quy luật, hình học, so sánh, số thiếu
+- ✅ **Câu hỏi hình học**: Vuông, tròn, tam giác, chữ nhật, ngôi sao, trái tim
+- ✅ **Theo dõi thời gian**: Thống kê chi tiết từng câu và tổng thời gian
+- ✅ **11 robot nhiều màu** trong phần thưởng
 
-### 🎁 Hệ Thống Phần Thưởng Pokemon
-- **Túi bí ẩn**: Bóc túi để nhận Pokemon
-- **5 độ hiếm**: Common, Uncommon, Rare, Epic, Legendary
-- **18 Pokemon khác nhau** với emoji đại diện
-- **Phần thưởng theo điểm**:
-  - 5/5 điểm → 5 túi bí ẩn
-  - 4/5 điểm → 4 túi bí ẩn
-  - 3/5 điểm → 3 túi bí ẩn
-  - 2/5 điểm → 2 túi bí ẩn
-  - 0-1/5 điểm → 1 túi bí ẩn
+### 🤖 AI Thông Minh (Google Gemini)
+- 🧠 **Đánh giá kết quả**: Nhận xét cá nhân hóa từ AI giáo viên
+- 📊 **Phân tích chi tiết**: Điểm số, tốc độ, khuyến nghị cải thiện
+- 💡 **Tạo câu hỏi tự động**: AI sinh câu hỏi mới (optional)
+- 🎯 **Gợi ý thông minh**: Hỗ trợ khi gặp khó khăn
 
 ### 🎨 Giao Diện
-- Thiết kế gradient đẹp mắt
-- Animation mượt mà khi mở túi
-- Responsive, thân thiện với mọi thiết bị
-- Emoji colorful cho trẻ em
+- 🌈 Gradient cards đẹp mắt
+- 🎵 Hệ thống âm thanh hoàn chỉnh
+- 📱 Responsive design
+- ⚡ Next.js App Router
+- 🎭 8 nhân vật Pokemon
 
-## 🚀 Cài Đặt và Chạy
+## 🚀 Quick Start
 
-### Yêu Cầu
-- Node.js 18+
-- npm hoặc yarn
+### Cài Đặt Local
 
-### Các Bước
-
-1. **Cài đặt dependencies**
 ```bash
+# Clone repository
+git clone https://github.com/datvt88/Mathgame.git
+cd Mathgame
+
+# Cài dependencies
 npm install
-```
 
-2. **Chạy development server**
-```bash
+# Chạy development server
 npm run dev
 ```
 
-3. **Mở trình duyệt**
-```
-http://localhost:3000
-```
+Mở trình duyệt: **http://localhost:3000**
 
-4. **Build cho production**
+### Kích Hoạt AI (Optional)
+
+1. **Lấy API Key**: https://makersuite.google.com/app/apikey
+2. **Tạo file `.env.local`**:
+   ```bash
+   cp .env.example .env.local
+   ```
+3. **Thêm API key**:
+   ```env
+   NEXT_PUBLIC_GEMINI_API_KEY=AIzaSy...your_key_here
+   ```
+4. **Restart**: `npm run dev`
+
+📖 Chi tiết: [GEMINI_SETUP.md](./GEMINI_SETUP.md)
+
+## 📦 Deploy Lên Vercel
+
+### Nhanh Nhất (1-Click Deploy)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/datvt88/Mathgame)
+
+Sau khi deploy:
+1. Vào **Settings** → **Environment Variables**
+2. Thêm: `NEXT_PUBLIC_GEMINI_API_KEY` = `AIzaSy...`
+3. **Redeploy**
+
+### Thủ Công
+
 ```bash
-npm run build
-npm start
+# Deploy với Vercel CLI
+npm i -g vercel
+vercel
+
+# Thêm env variables trong Vercel Dashboard
 ```
 
-## 📁 Cấu Trúc Dự Án
-
-```
-pokemon-math-game/
-├── app/
-│   ├── layout.tsx          # Root layout
-│   ├── page.tsx            # Trang chủ
-│   ├── game/
-│   │   └── page.tsx        # Trang game chính
-│   └── globals.css         # Global styles
-├── components/
-│   ├── QuestionCard.tsx    # Component hiển thị câu hỏi
-│   └── PokemonReward.tsx   # Component phần thưởng Pokemon
-├── lib/
-│   ├── gameLogic.ts        # Logic sinh câu hỏi
-│   └── pokemon.ts          # Dữ liệu Pokemon
-├── next.config.js          # NextJS config
-├── tsconfig.json           # TypeScript config
-└── package.json
-```
+📖 Chi tiết: [VERCEL_DEPLOY.md](./VERCEL_DEPLOY.md)
 
 ## 🎮 Cách Chơi
 
-1. **Bắt đầu**: Click "Bắt Đầu Chơi" từ trang chủ
-2. **Trả lời câu hỏi**: Chọn đáp án đúng từ các lựa chọn
-3. **Nhận phản hồi**: Ngay lập tức biết đúng/sai
-4. **Hoàn thành**: Sau 5 câu hỏi, nhận túi bí ẩn
-5. **Bóc túi**: Click vào từng túi để nhận Pokemon
-6. **Chơi lại**: Click "Chơi Lại" để bắt đầu vòng mới
+1. **Chọn Độ Khó**: 😊 Dễ hoặc 🔥 Khó
+2. **Chọn Pokemon**: 8 nhân vật để lựa chọn
+3. **Trả Lời 10 Câu**: Nhiều dạng bài toán khác nhau
+4. **Nhận Kết Quả**:
+   - 📊 Điểm số và thời gian
+   - 🎁 Pokemon & 11 robot trang bị
+   - 🤖 Nhận xét từ AI giáo viên
 
-## 🔧 Công Nghệ
+## 📚 10 Dạng Bài Toán
 
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript
-- **Styling**: CSS Modules
-- **React**: 19.0.0
+| Icon | Dạng | Mô Tả | Ví Dụ |
+|------|------|-------|-------|
+| 🔄 | **Quy luật** | Tìm pattern tiếp theo | AB AB AB → ? |
+| ➕ | **Phép cộng** | Hình ảnh + số | 🍎🍎 + 🍎🍎🍎 = ? |
+| ➖ | **Phép trừ** | Bớt đi bao nhiêu | 10 - 3 = ? |
+| 🔢 | **Đếm** | Đếm số đồ vật | Có bao nhiêu 🍎? |
+| ⚖️ | **So sánh** | Nhiều/ít hơn | 🐶 hay 🐱 nhiều hơn? |
+| ❓ | **Số thiếu** | Tìm số trong dãy | 1,2,?,4,5 |
+| 🟦 | **Đếm hình** | Đếm hình học | Có bao nhiêu ⭐? |
+| 🔺 | **Dãy hình** | Pattern hình học | 🔵🔺🔵🔺→? |
+| 🎯 | **Quy luật ABC** | Phức tạp hơn | ABC ABC → ? |
+| 🔢 | **Nhảy 2** | Đếm nhảy | 2,4,?,8,10 |
 
-## 📝 Tùy Chỉnh
+## 🎯 Cấu Trúc Project
 
-### Thêm Pokemon Mới
-Chỉnh sửa file `lib/pokemon.ts`:
-```typescript
-{ id: 19, name: 'Mew', emoji: '😺', rarity: 'legendary', color: '#FF1493' }
+```
+Mathgame/
+├── app/
+│   ├── page.tsx              # Trang chủ + chọn độ khó
+│   ├── game/
+│   │   └── page.tsx          # Game chính (10 câu)
+│   └── globals.css
+├── components/
+│   ├── CharacterSelect.tsx   # Chọn Pokemon
+│   ├── CharacterDisplay.tsx  # Hiển thị nhân vật + trang bị
+│   ├── QuestionCard.tsx      # Hiển thị câu hỏi
+│   └── PokemonReward.tsx     # Phần thưởng
+├── lib/
+│   ├── gameLogic.ts          # 200+ câu hỏi, hình học
+│   ├── gemini.ts             # ⭐ Gemini AI integration
+│   ├── characters.ts         # 8 Pokemon
+│   ├── equipment.ts          # 29 items (11 robots)
+│   ├── pokemon.ts            # 18 Pokemon rewards
+│   └── soundManager.ts       # Âm thanh
+└── docs/
+    ├── GEMINI_SETUP.md       # Hướng dẫn config AI
+    └── VERCEL_DEPLOY.md      # Hướng dẫn deploy
 ```
 
-### Thêm Dạng Câu Hỏi Mới
-Chỉnh sửa file `lib/gameLogic.ts` và thêm function generator mới.
+## 🛠️ Tech Stack
 
-### Điều Chỉnh Độ Khó
-- Thay đổi số range trong các hàm generate
-- Điều chỉnh số lượng câu hỏi trong `generateQuestions(5)`
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: CSS Modules + Gradients
+- **AI**: Google Gemini API
+- **Deployment**: Vercel
+- **Audio**: Web Audio API
 
-## 🎯 Phù Hợp Cho
+## 📊 Thống Kê Ấn Tượng
 
-- Học sinh Lớp 1 (6-7 tuổi)
-- Luyện tập toán học cơ bản
-- Phát triển nhận biết patterns
-- Học tập qua game hóa
+- 📝 **200+** câu hỏi toán học
+- 🎭 **8** nhân vật Pokemon
+- 🎁 **29** items trang bị (11 robot đa màu)
+- 🤖 **18** Pokemon phần thưởng
+- 🎨 **10** dạng bài toán
+- ⏱️ **2** cấp độ (Easy/Hard)
+- 🤖 **3** tính năng AI
 
-## 📄 License
+## 🎁 Hệ Thống Phần Thưởng
+
+### Pokemon (18 loại)
+- **Common**: Rattata, Pidgey, Caterpie, Weedle
+- **Uncommon**: Psyduck, Jigglypuff, Meowth, Oddish
+- **Rare**: Growlithe, Magnemite, Ponyta, Cubone
+- **Epic**: Eevee, Snorlax, Lapras, Dratini
+- **Legendary**: Articuno, Moltres
+
+### Trang Bị (29 items)
+- **Mũ** (4): Phù thủy, Vương miện, Lưỡi trai, Sinh nhật
+- **Kính** (3): Học giả, Mát, Bơi
+- **Phụ kiện** (13): Huy chương + **8 Robot màu** 🤖
+- **Công cụ** (9): Bút, Sách + **3 Robot bay** 🚀
+
+## 🔐 Bảo Mật & Best Practices
+
+- ✅ API key trong environment variables
+- ✅ `.env.local` trong `.gitignore`
+- ✅ Không có secrets trong code
+- ✅ Validation phía client
+- ✅ Graceful degradation (hoạt động không cần AI)
+
+## 📖 Documentation
+
+- [GEMINI_SETUP.md](./GEMINI_SETUP.md) - Hướng dẫn cấu hình Gemini AI
+- [VERCEL_DEPLOY.md](./VERCEL_DEPLOY.md) - Hướng dẫn deploy production
+
+## 🤝 Contributing
+
+Đóng góp luôn được chào đón!
+
+1. Fork repo
+2. Tạo branch: `git checkout -b feature/AmazingFeature`
+3. Commit: `git commit -m 'Add AmazingFeature'`
+4. Push: `git push origin feature/AmazingFeature`
+5. Tạo Pull Request
+
+## 📝 License
 
 MIT License - Tự do sử dụng cho mục đích giáo dục
 
-## 🤝 Đóng Góp
+## 👨‍💻 Author
 
-Mọi đóng góp đều được chào đón! Hãy tạo Pull Request hoặc mở Issue để thảo luận.
+**datvt88** - [GitHub](https://github.com/datvt88)
+
+## 🎯 Roadmap
+
+- [ ] Thêm chế độ multiplayer
+- [ ] Leaderboard toàn cầu
+- [ ] Thêm dạng bài phân số
+- [ ] Voice recognition cho câu trả lời
+- [ ] PWA support (offline mode)
+- [ ] Thêm ngôn ngữ (English)
+
+## 🙏 Credits
+
+- Pokemon characters © Nintendo/Game Freak
+- Google Gemini AI © Google
+- Icons from Unicode emoji standard
+- Sound effects from Web Audio API
+
+## 📞 Support
+
+Gặp vấn đề? Tạo [Issue](https://github.com/datvt88/Mathgame/issues)!
 
 ---
 
-Made with ❤️ for Grade 1 students
+**Made with ❤️ for Grade 1 students**
+
+🎮 **[Chơi Ngay!](https://mathgame-pokemon.vercel.app)** (Coming soon)
