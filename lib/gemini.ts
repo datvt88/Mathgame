@@ -15,6 +15,35 @@ function isAPIConfigured(): boolean {
          API_KEY.startsWith('AIzaSy');
 }
 
+// Export function to check API status from components
+export function checkGeminiAPIStatus(): { connected: boolean; message: string } {
+  if (!API_KEY || API_KEY.length === 0) {
+    return {
+      connected: false,
+      message: 'Chưa cấu hình API Key'
+    };
+  }
+
+  if (API_KEY.includes('YOUR_API_KEY') || API_KEY.includes('Demo')) {
+    return {
+      connected: false,
+      message: 'API Key chưa được thiết lập đúng'
+    };
+  }
+
+  if (!API_KEY.startsWith('AIzaSy')) {
+    return {
+      connected: false,
+      message: 'API Key không hợp lệ'
+    };
+  }
+
+  return {
+    connected: true,
+    message: 'Đã kết nối Gemini AI'
+  };
+}
+
 // Lazy initialization - only create when API key is valid
 function getGeminiAI(): GoogleGenerativeAI | null {
   if (!isAPIConfigured()) {

@@ -2,28 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import CharacterSelect from '@/components/CharacterSelect';
-import { Character } from '@/lib/characters';
+import { CHARACTERS } from '@/lib/characters';
 import getSoundManager from '@/lib/soundManager';
 
 export default function Home() {
   const router = useRouter();
-  const [showCharacterSelect, setShowCharacterSelect] = useState(false);
   const [showDifficultySelect, setShowDifficultySelect] = useState(false);
-  const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'hard'>('easy');
-
-  const handleCharacterSelect = (character: Character) => {
-    // Play select sound
-    getSoundManager().playSelect();
-
-    // Save selected character and difficulty to sessionStorage
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('selectedCharacter', JSON.stringify(character));
-      sessionStorage.setItem('selectedDifficulty', selectedDifficulty);
-    }
-    // Navigate to game
-    router.push('/game');
-  };
 
   const handleStartClick = () => {
     getSoundManager().playClick();
@@ -32,9 +16,15 @@ export default function Home() {
 
   const handleDifficultySelect = (difficulty: 'easy' | 'hard') => {
     getSoundManager().playClick();
-    setSelectedDifficulty(difficulty);
-    setShowDifficultySelect(false);
-    setShowCharacterSelect(true);
+
+    // Auto-assign default character (Pikachu) and save difficulty
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('selectedCharacter', JSON.stringify(CHARACTERS[0]));
+      sessionStorage.setItem('selectedDifficulty', difficulty);
+    }
+
+    // Navigate directly to game
+    router.push('/game');
   };
 
   if (showDifficultySelect) {
@@ -126,14 +116,6 @@ export default function Home() {
     );
   }
 
-  if (showCharacterSelect) {
-    return (
-      <div className="container">
-        <CharacterSelect onSelect={handleCharacterSelect} />
-      </div>
-    );
-  }
-
   return (
     <div className="container">
       <h1 className="title">🎮 Game Toán Pokemon</h1>
@@ -164,10 +146,11 @@ export default function Home() {
           📖 Cách Chơi
         </h3>
         <ol style={{ fontSize: '1.1em', lineHeight: '1.8', color: '#333', paddingLeft: '30px' }}>
-          <li>Chọn nhân vật yêu thích của bạn</li>
+          <li>Chọn độ khó phù hợp với bạn</li>
           <li>Trả lời 10 câu hỏi toán học</li>
           <li>Sau khi hoàn thành, nhận trang bị dựa trên số câu đúng!</li>
           <li>Càng nhiều câu đúng, càng nhiều trang bị và Pokemon!</li>
+          <li>Nhận đánh giá từ AI Giáo viên khi hoàn thành!</li>
         </ol>
       </div>
 
