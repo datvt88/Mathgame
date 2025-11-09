@@ -9,6 +9,7 @@ import { Equipment, PlayerEquipment, getRandomEquipment } from '@/lib/equipment'
 import QuestionCard from '@/components/QuestionCard';
 import PokemonReward from '@/components/PokemonReward';
 import CharacterDisplay from '@/components/CharacterDisplay';
+import GeminiStatus from '@/components/GeminiStatus';
 import getSoundManager from '@/lib/soundManager';
 import { evaluateGameResults, GameResult } from '@/lib/gemini';
 
@@ -206,6 +207,11 @@ export default function GamePage() {
       <div className="container">
         <h1 className="title">🎊 Kết Quả</h1>
 
+        {/* Gemini API Status */}
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <GeminiStatus />
+        </div>
+
         {/* Show character with all earned equipment */}
         <CharacterDisplay character={character} equipment={equipment} score={score} />
 
@@ -247,7 +253,8 @@ export default function GamePage() {
           </h3>
           {isEvaluating ? (
             <div style={{ textAlign: 'center', padding: '20px' }}>
-              <div style={{ fontSize: '1.2em' }}>Đang phân tích kết quả... ⏳</div>
+              <div style={{ fontSize: '1.2em', marginBottom: '10px' }}>⏳ Đang phân tích kết quả...</div>
+              <div style={{ fontSize: '0.9em', opacity: 0.8 }}>Gemini AI đang đánh giá bài làm của bạn</div>
             </div>
           ) : aiEvaluation ? (
             <div style={{
@@ -261,8 +268,11 @@ export default function GamePage() {
               {aiEvaluation}
             </div>
           ) : (
-            <div style={{ textAlign: 'center', fontSize: '0.9em', opacity: 0.8 }}>
-              Nhận xét AI đang được tải...
+            <div style={{ textAlign: 'center', padding: '15px' }}>
+              <div style={{ fontSize: '1.1em', marginBottom: '10px' }}>⚠️ Không thể tải nhận xét AI</div>
+              <div style={{ fontSize: '0.9em', opacity: 0.8 }}>
+                Kiểm tra trạng thái kết nối Gemini AI ở trên
+              </div>
             </div>
           )}
         </div>
